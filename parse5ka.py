@@ -61,7 +61,7 @@ class Parser5ka:
 
     def run(self):
         for products in self.parse(self.start_url):
-            file_path = Path(__file__).parent.joinpath("json").joinpath(self.category.get('parent_group_code') +'.json')
+            file_path = Path(__file__).parent.joinpath("json").joinpath(self.category.get('parent_group_name') +'.json')
             self.save_file(file_path, products)
 
     def parse(self, url):

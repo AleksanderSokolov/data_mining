@@ -47,15 +47,16 @@ class GbParse:
 
     def post_parse(self, url, soup: bs4.BeautifulSoup) -> dict:
         author_name_tag = soup.find('div', attrs={'itemprop': 'author'})
-
+        title = soup.find('h1', attrs={'class': 'blogpost-title'})
+        comment = soup.find('h1', attrs={'class': 'blogpost-title'})
 
 
         data = {
             'post_data': {
                 'url': url,
-                'title': soup.find('h1', attrs={'class': 'blogpost-title'}).text,
-                'img': soup.find('h1', attrs={'class': 'blogpost-title'}).parent.find_all('img')[0].get('src'),
-                'time': self.convert_to_date(soup.find('h1', attrs={'class': 'blogpost-title'}).parent.find('time').text),
+                'title': title.text,
+                'img': title.parent.find_all('img')[0].get('src'),
+                'time': self.convert_to_date(title.parent.find('time').text),
             },
             'author': {
                 'url': urljoin(url, author_name_tag.parent.get('href')),
@@ -65,6 +66,10 @@ class GbParse:
                 'name': tag.text,
                 'url': urljoin(url, tag.get('href')),
             } for tag in soup.find_all('a', attrs={'class': 'small'})],
+            'comments': [{
+                'text': comment.text,
+                'url': urljoin(url, comment.parent.find('a', attrs={'class': 'gb__comment-item-header-user-data-name'}).get('href')),
+            } for comment in soup.find_all('div', attrs={'class': 'gb__comment-item-body'})],
         }
         return data
 

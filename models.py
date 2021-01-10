@@ -25,6 +25,13 @@ tag_post = Table(
     Column('tag_id', Integer, ForeignKey('tag.id'))
 )
 
+comment_post = Table(
+    'comment_post',
+    Base.metadata,
+    Column('post_id', Integer, ForeignKey('post.id')),
+    Column('comment_id', Integer, ForeignKey('comment.id'))
+)
+
 
 class Post(Base, MixIdUrl):
     __tablename__ = 'post'
@@ -33,6 +40,7 @@ class Post(Base, MixIdUrl):
     img = Column(String, nullable=False)
     time = Column(DateTime, nullable=False)
     tags = relationship('Tag', secondary=tag_post)
+    comments = relationship('Comment', secondary=comment_post)
 
 
 class Author(Base, MixIdUrl):
@@ -45,3 +53,8 @@ class Tag(Base, MixIdUrl):
     __tablename__ = 'tag'
     name = Column(String, nullable=False)
     posts = relationship('Post', secondary=tag_post)
+
+class Comment(Base, MixIdUrl):
+    __tablename__ = 'comment'
+    text = Column(String, nullable=False)
+    posts = relationship('Post', secondary=comment_post)

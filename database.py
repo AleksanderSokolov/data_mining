@@ -22,10 +22,15 @@ class Database:
                                                        models.Tag,
                                                        tag_data
                                                        ), data['tags'])
+        comments = map(lambda comment_data: self.get_or_create(session,
+                                                       models.Comment,
+                                                       comment_data
+                                                       ), data['comments'])
         author = self.get_or_create(session, models.Author, data['author'])
         post = self.get_or_create(session, models.Post, data['post_data'])
         post.author = author
         post.tags.extend(tags)
+        post.comments.extend(comments)
         session.add(post)
 
         try:

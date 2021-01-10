@@ -6,6 +6,13 @@ from dotenv import load_dotenv
 
 from database import Database
 
+from datetime import datetime
+
+# для преобразования слов
+import pymorphy2
+# для понимания русскоязычного названия месяца
+import locale
+
 # todo обойти пагинацию блога
 # todo обойти каждую статью
 # todo Извлечь данные: Url, Заголовок, имя автора, url автора, список тегов (url, имя)
@@ -40,11 +47,15 @@ class GbParse:
 
     def post_parse(self, url, soup: bs4.BeautifulSoup) -> dict:
         author_name_tag = soup.find('div', attrs={'itemprop': 'author'})
+
+
+
         data = {
             'post_data': {
                 'url': url,
                 'title': soup.find('h1', attrs={'class': 'blogpost-title'}).text,
                 'img': soup.find('h1', attrs={'class': 'blogpost-title'}).parent.find_all('img')[0].get('src'),
+                'time': self.convert_to_date(soup.find('h1', attrs={'class': 'blogpost-title'}).parent.find('time').text),
             },
             'author': {
                 'url': urljoin(url, author_name_tag.parent.get('href')),
@@ -56,6 +67,20 @@ class GbParse:
             } for tag in soup.find_all('a', attrs={'class': 'small'})],
         }
         return data
+
+    def convert_to_date(self, datestr):
+        # устанавливаем русскоязычный формат даты и времени
+        locale.setlocale(locale.LC_ALL,'ru')
+        # инициализируем парсер для разбора слов
+        m = pymorphy2.MorphAnalyzer()
+
+        day, month, year = datestr.split(' ')
+
+        # преобразуем название месяца в именительный падеж с заглавной буквы
+        new_month = m.parse(month)[0].inflect({'nomn'}).word.title()
+
+        dt_obj = datetime.strptime(' '.join([day, new_month, year]), '%d %B %Y')
+        return dt_obj
 
     def pag_parse(self, url, soup: bs4.BeautifulSoup):
         gb_pagination = soup.find('ul', attrs={'class': 'gb__pagination'})

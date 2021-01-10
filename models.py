@@ -1,6 +1,8 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Table, Column, String, Integer, ForeignKey
 from sqlalchemy.orm import relationship
+from sqlalchemy.types import DateTime
+
 
 Base = declarative_base()
 
@@ -29,6 +31,7 @@ class Post(Base, MixIdUrl):
     title = Column(String, nullable=False)
     author_id = Column(Integer, ForeignKey('author.id'))
     img = Column(String, nullable=False)
+    time = Column(DateTime, nullable=False)
     tags = relationship('Tag', secondary=tag_post)
 
 
